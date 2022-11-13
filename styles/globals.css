@@ -870,9 +870,27 @@ video{
       display: none;
     }
   }
+
+  .video-flex{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   
-
-
+.subscribe_btn{
+  padding: 2px 10px;
+  color:white;
+  font-size: 12px !important;
+  background-color: #5E50F9;
+  border-radius: 30px;
+  border: none !important;
+  margin-right: 15px;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.subscribe_btn:hover{
+  color:white;
+}
 
 
 

@@ -26,26 +26,40 @@ const VideoDetails = () => {
               >
                 <source src="https://res.cloudinary.com/du9emrtpi/video/upload/v1668190798/video_1_ua5iga.mp4" />
               </video>
-              <div className="p-2 d-flex ">
-                <Link href="/">
-                  <a>
-                    <img
-                      src="https://static-cse.canva.com/blob/951430/1600w-wK95f3XNRaM.jpg"
-                      alt=""
-                      className="video_img"
-                    />
-                  </a>
-                </Link>
-                <div className="ml-2">
-                  <p className="m-0 fn_14">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    At, odit.
-                  </p>
+              <div className="mt-2 m-1">
+                <p className="m-0 fn_14">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. At,
+                  odit.
+                </p>
+              </div>
+              <div className="p-1 video-flex ">
+                <div className="d-flex">
                   <Link href="/">
-                    <a className=" fn_12 fn_col ">
-                      <p className="m-0">Atanu Jana</p>
+                    <a>
+                      <img
+                        src="https://static-cse.canva.com/blob/951430/1600w-wK95f3XNRaM.jpg"
+                        alt=""
+                        className="video_img"
+                      />
                     </a>
                   </Link>
+                  <div className="ml-2">
+                    <Link href="/">
+                      <a className=" fn_12 fn_col ">
+                        <span className="">Atanu Jana</span>
+                      </a>
+                    </Link>
+                    <p className="m-0 fn_10">0 subscribers</p>
+                  </div>
+                </div>
+                <div className="d-flex">
+                  <button className="btn subscribe_btn">Subscribe</button>
+                  <p className="m-0 fn_14">
+                    0 <i className="fa fa-eye"></i>
+                  </p>
+                  <p className="m-0 fn_14 ml-3">
+                    0 <i className="fa fa-heart-o cur"></i>
+                  </p>
                 </div>
               </div>
               <div className="video_des p-2">
