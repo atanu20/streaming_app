@@ -113,9 +113,9 @@ const account = () => {
                 {editDesStatus ? (
                   <>
                     <form action="" className="mt-2" onSubmit={onEditDesc}>
-                      <div class="form-group">
+                      <div className="form-group">
                         <textarea
-                          class="form-control"
+                          className="form-control"
                           placeholder="Write Description"
                           name="description"
                           rows="3"

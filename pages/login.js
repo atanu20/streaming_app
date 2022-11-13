@@ -11,30 +11,30 @@ const Login = () => {
   return (
     <>
       <div className="register">
-        <div class="register_box">
+        <div className="register_box">
           {/* <input type="checkbox" id="flip" /> */}
-          <div class="cover">
-            <div class="front">
+          <div className="cover">
+            <div className="front">
               <img
                 src="https://res.cloudinary.com/du9emrtpi/image/upload/v1668275666/stream/frontImg_bbuqsf.jpg"
                 alt=""
               />
-              <div class="text">
-                <span class="text-1">
+              <div className="text">
+                <span className="text-1">
                   Show<span className="text-dark">Box</span>
                 </span>
-                <span class="text-2">Find your favourite video</span>
+                <span className="text-2">Find your favourite video</span>
               </div>
             </div>
           </div>
-          <div class="forms">
-            <div class="form-content">
-              <div class="signup-form">
-                <div class="title">Login</div>
+          <div className="forms">
+            <div className="form-content">
+              <div className="signup-form">
+                <div className="title">Login</div>
                 <form action="#" onSubmit={onRegister}>
-                  <div class="input-boxes">
-                    <div class="input-box">
-                      <i class="fa fa-envelope"></i>
+                  <div className="input-boxes">
+                    <div className="input-box">
+                      <i className="fa fa-envelope"></i>
                       <input
                         type="text"
                         placeholder="Enter your email"
@@ -43,8 +43,8 @@ const Login = () => {
                         required
                       />
                     </div>
-                    <div class="input-box">
-                      <i class="fa fa-lock"></i>
+                    <div className="input-box">
+                      <i className="fa fa-lock"></i>
                       <input
                         type="password"
                         placeholder="Enter your password"
@@ -53,10 +53,10 @@ const Login = () => {
                         required
                       />
                     </div>
-                    <div class="button input-box">
+                    <div className="button input-box">
                       <input type="submit" value="Sumbit" />
                     </div>
-                    <div class="text sign-up-text">
+                    <div className="text sign-up-text">
                       Don't have an account?
                       <label>
                         <Link href="/register">

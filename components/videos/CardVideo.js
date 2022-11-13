@@ -9,9 +9,12 @@ const CardVideo = () => {
           {[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 3, 5, 4, 9,
             95, 22, 5, 5, 6, 6, 4, 4, 1,
-          ].map((val) => {
+          ].map((val, ind) => {
             return (
-              <div className="col-lg-3 col-md-4 col-sm-6 col-12  mb-2">
+              <div
+                className="col-lg-3 col-md-4 col-sm-6 col-12  mb-2"
+                key={ind}
+              >
                 <div className="card">
                   <Link href="/">
                     <a>

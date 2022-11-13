@@ -71,23 +71,23 @@ const Navbar = () => {
           <div className="searchnav fixed-top">
             <form action="" onSubmit={onSub}>
               <div className="searchdiv">
-                <div class="input-group ">
+                <div className="input-group ">
                   <input
                     type="text"
-                    class="form-control"
+                    className="form-control"
                     placeholder="Type to Search..."
                     value={search}
                     required
                     onChange={(e) => setSearch(e.target.value)}
                   />
-                  <div class="input-group-append">
-                    <button type="submit" class="input-group-text btn">
-                      <i class="fa fa-search" aria-hidden="true"></i>
+                  <div className="input-group-append">
+                    <button type="submit" className="input-group-text btn">
+                      <i className="fa fa-search" aria-hidden="true"></i>
                     </button>
                   </div>
                 </div>
                 <i
-                  class="fa fa-times cur"
+                  className="fa fa-times cur"
                   style={{ fontSize: '18px' }}
                   aria-hidden="true"
                   onClick={() => {
@@ -251,9 +251,9 @@ const Navbar = () => {
                         </a>
                       </Link>
                     </li>
-                    {sidenav?.map((val) => {
+                    {sidenav?.map((val, ind) => {
                       return (
-                        <li>
+                        <li key={ind}>
                           <Link href={val.path}>
                             <a>
                               <i className={`${val.fclass} fa mr-2`}></i>

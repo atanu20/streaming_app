@@ -51,9 +51,9 @@ const TagSlider = () => {
           </p>
         </SwiperSlide>
 
-        {tags?.map((val) => {
+        {tags?.map((val, ind) => {
           return (
-            <SwiperSlide>
+            <SwiperSlide key={ind}>
               <p
                 className={
                   router.query.tag === val.toLowerCase() &&

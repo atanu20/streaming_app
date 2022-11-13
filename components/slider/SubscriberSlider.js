@@ -16,9 +16,9 @@ const SubscriberSlider = () => {
           // loop={true}
           //   autoplay={{ delay: 3000 }}
         >
-          {[1, 2, 3, 4, 5, 6, 7, 89, 9, 1, 2, 5, 5, 5, 6]?.map((val) => {
+          {[1, 2, 3, 4, 5, 6, 7, 89, 9, 1, 2, 5, 5, 5, 6]?.map((val, ind) => {
             return (
-              <SwiperSlide>
+              <SwiperSlide key={ind}>
                 <Link href="/">
                   <a>
                     <img

@@ -154,10 +154,10 @@ const VideoDetails = () => {
             </div>
             <div className="col-md-4 col-12 mx-auto mb-2">
               <div className="recomend_video_list">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12].map((val) => {
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12].map((val, ind) => {
                   return (
                     <>
-                      <div className="recomend_video">
+                      <div className="recomend_video" key={ind}>
                         <div className="row  mb-2">
                           <div className="col-lg-5 col-md-5 col-sm-6 col-6 mx-auto">
                             <Link href="/">

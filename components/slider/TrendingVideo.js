@@ -18,9 +18,9 @@ const TrendingVideo = () => {
         loop={true}
         autoplay={{ delay: 3000 }}
       >
-        {trendingV?.map((val) => {
+        {trendingV?.map((val, ind) => {
           return (
-            <SwiperSlide>
+            <SwiperSlide key={ind}>
               <Link href="/">
                 <a>
                   <img
@@ -29,7 +29,7 @@ const TrendingVideo = () => {
                   />
                   <div className="overlay">
                     <div>
-                      <i class="fa fa-play-circle" aria-hidden="true"></i>
+                      <i className="fa fa-play-circle" aria-hidden="true"></i>
                     </div>
                   </div>
                 </a>

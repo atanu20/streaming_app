@@ -26,10 +26,10 @@ const upload_video = () => {
                   <h5 className="fn_Col">Upload Your Video</h5>
                   <hr />
                   <form action="" onSubmit={onVideoUpload}>
-                    <div class="form-group">
+                    <div className="form-group">
                       <input
                         type="text"
-                        class="form-control"
+                        className="form-control"
                         name="title"
                         placeholder="Write Title"
                         value={title}
@@ -38,9 +38,9 @@ const upload_video = () => {
                         maxLength={100}
                       />
                     </div>
-                    <div class="form-group">
+                    <div className="form-group">
                       <textarea
-                        class="form-control"
+                        className="form-control"
                         placeholder="Write Description"
                         name="description"
                         rows="3"
@@ -49,10 +49,10 @@ const upload_video = () => {
                         required
                       ></textarea>
                     </div>
-                    <div class="form-group">
+                    <div className="form-group">
                       <input
                         type="text"
-                        class="form-control"
+                        className="form-control"
                         name="tags"
                         placeholder="Write Tags (Like Video,Music,Song)"
                         value={tags}
@@ -61,10 +61,10 @@ const upload_video = () => {
                       />
                     </div>
 
-                    <div class="form-group">
+                    <div className="form-group">
                       <label htmlFor="">Visibility</label>
                       <select
-                        class="form-control"
+                        className="form-control"
                         value={visibility}
                         onChange={(e) => setVisibility(e.target.value)}
                       >
@@ -73,10 +73,10 @@ const upload_video = () => {
                       </select>
                     </div>
                     <label htmlFor="">Upload Thumbnail</label>
-                    <div class="form-group ">
+                    <div className="form-group ">
                       <input
                         type="file"
-                        class="form-control"
+                        className="form-control"
                         name="thumbnail"
                         style={{ paddingBottom: '35px' }}
                         value={thumbnail}
@@ -85,10 +85,10 @@ const upload_video = () => {
                       />
                     </div>
                     <label htmlFor="">Upload Video</label>
-                    <div class="form-group ">
+                    <div className="form-group ">
                       <input
                         type="file"
-                        class="form-control "
+                        className="form-control "
                         style={{ paddingBottom: '35px' }}
                         name="video"
                         value={video}
