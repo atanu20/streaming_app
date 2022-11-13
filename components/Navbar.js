@@ -234,7 +234,7 @@ const Navbar = () => {
                   <Toolbar className="nav-wid">
                     <Link href="/" onClick={() => setOpen(false)}>
                       <a className="logo mt-1">
-                        <h3 className="text-light fn_700">
+                        <h3 className="text-ligh fn_700">
                           Show<span className="text-dark">Box</span>
                         </h3>
                       </a>

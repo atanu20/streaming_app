@@ -318,13 +318,13 @@ font-weight: 600;
     width: 100%;
 
 }
-.css-hyum1k-MuiToolbar-root{
+.MuiToolbar-root{
     width: 100% !important;
     height: 60px !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    background-color: #5E50F9;
+    background-color: #5E50F9 !important;
 }
 
 .listsize li a{
