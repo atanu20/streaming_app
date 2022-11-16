@@ -25,7 +25,7 @@ app.use(
 app.use('/api/user', require('./routes/userRouter'));
 
 app.get('/', (req, res) => {
-  res.send('welcome to TvTimes');
+  res.send('welcome to Streaming');
 });
 
 app.get('/auth/isVerify', auth, async (req, res) => {
