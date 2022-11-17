@@ -5,6 +5,8 @@
 // };
 // "eslint": "7.32.0",
 // "eslint-config-next": "12.0.1"
+// "eslint": "8.18.0",
+//     "eslint-config-next": "12.1.6"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
