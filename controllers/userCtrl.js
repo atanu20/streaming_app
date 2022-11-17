@@ -187,7 +187,7 @@ const userCtrl = {
 
               res.json({
                 success: true,
-                msg: 'video Uploaded Successfully',
+                msg: 'Video Uploaded Successfully , Wating for Approved ',
               });
             }
           );
