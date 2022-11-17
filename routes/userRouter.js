@@ -31,7 +31,13 @@ router.get('/getAllTags', auth, userCtrl.getAllTags);
 router.post('/addSubscriber', auth, userCtrl.addSubscriber);
 router.post('/subscribedornot', auth, userCtrl.subscribedornot);
 router.get('/search/:text', auth, userCtrl.search);
+router.post('/updateVideoDetails', auth, userCtrl.updateVideoDetails);
 
-// Social Login
+// admin part
+
+router.get('/getAdminAllVideoanduser', auth, userCtrl.getAdminAllVideoanduser);
+router.get('/getAdminApproved/:vid', auth, userCtrl.getAdminApproved);
+router.get('/onAdminDeleteVideo/:v_id', auth, userCtrl.onAdminDeleteVideo);
+router.get('/onMakeAdmin/:u_id', auth, userCtrl.onMakeAdmin);
 
 module.exports = router;

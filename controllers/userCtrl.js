@@ -254,13 +254,27 @@ const userCtrl = {
   },
   getAllVideo: async (req, res) => {
     try {
-      const video = await videoTable
-        .find({ userid: req.body.accountId, isApprove: true })
-        .sort({
-          uploadAt: -1,
-        });
-      // console.log(video);
-      res.json({ success: true, allvideo: video });
+      const { my_account } = req.body;
+
+      if (my_account) {
+        const video = await videoTable
+          .find({ userid: req.body.accountId })
+          .sort({
+            uploadAt: -1,
+          });
+        // console.log(video);
+        // console.log(my_account);
+        res.json({ success: true, allvideo: video });
+      } else {
+        const video = await videoTable
+          .find({ userid: req.body.accountId, isApprove: true })
+          .sort({
+            uploadAt: -1,
+          });
+        // console.log(video);
+        // console.log(my_account + 'hi');
+        res.json({ success: true, allvideo: video });
+      }
     } catch (err) {
       return res.json({ success: false, msg: err.message });
     }
@@ -286,16 +300,6 @@ const userCtrl = {
       // // console.log(video);
 
       let user = await userTable.findById(req.user.id);
-
-      // const filterByTag = (list, subscribers) => {
-      //   // console.log(list);
-      //   return subscribers.filter((vid) =>
-      //     list.filter((filter) => {
-      //       console.log(filter, ind);
-      //       return filter.userid != vid;
-      //     })
-      //   );
-      // };
 
       // const filterVideo = filterByTag(vide, user.subscribed);
       let lastdata = vide;
@@ -639,6 +643,119 @@ const userCtrl = {
       res.json({
         success: true,
         videoList: video,
+      });
+    } catch (err) {
+      return res.json({ success: false, msg: err.message });
+    }
+  },
+  updateVideoDetails: async (req, res) => {
+    try {
+      let { title, description, tags, visibility, vid } = req.body;
+      tags = tags.trim();
+      if (tags.endsWith(',')) {
+        tags = tags.slice(0, -1);
+      }
+
+      // console.log(tags);
+      let tagArray = [];
+      let tagsarr = tags.split(',');
+      for (let a of tagsarr) {
+        tagArray.push(a.toLocaleLowerCase().trim());
+      }
+
+      const dat = await videoTable.findOneAndUpdate(
+        { _id: vid },
+        {
+          title,
+          description,
+          tags: tagArray,
+          isPublic: visibility,
+        },
+        { new: true }
+      );
+      res.json({
+        success: true,
+        msg: 'Update Successfully',
+      });
+    } catch (err) {
+      return res.json({ success: false, msg: err.message });
+    }
+  },
+  //admin part
+  getAdminAllVideoanduser: async (req, res) => {
+    try {
+      const video = await videoTable.find().sort({ uploadAt: -1 });
+      const user = await userTable.find().sort({ createdAt: -1 });
+      const comm = await comTable.find().sort({ createdAt: -1 });
+
+      return res.json({
+        success: true,
+        allvideo: video,
+        alluser: user,
+        allcomm: comm,
+      });
+    } catch (err) {
+      return res.json({ success: false, msg: err.message });
+    }
+  },
+  getAdminApproved: async (req, res) => {
+    try {
+      const dat = await videoTable.findOneAndUpdate(
+        { _id: req.params.vid },
+        {
+          isApprove: true,
+        },
+        { new: true }
+      );
+      return res.json({
+        success: true,
+        msg: 'Approved Successfully',
+      });
+    } catch (err) {
+      return res.json({ success: false, msg: err.message });
+    }
+  },
+  onAdminDeleteVideo: async (req, res) => {
+    try {
+      const data = await videoTable.findByIdAndRemove(req.params.v_id);
+      // console.log(data);
+      const user = await userTable.findById(data.userid);
+      const dat = await userTable.findOneAndUpdate(
+        { _id: data.userid },
+        {
+          postCount: user.postCount - 1,
+        },
+        { new: true }
+      );
+
+      sendEmailGrid(
+        user.name.split(' ')[0],
+        user.email,
+        CLIENT_URL,
+        data.title,
+        'delete video'
+      );
+
+      res.json({
+        success: true,
+        msg: 'Deleted Successfully',
+      });
+    } catch (err) {
+      return res.json({ success: false, msg: err.message });
+    }
+  },
+  onMakeAdmin: async (req, res) => {
+    try {
+      const dat = await userTable.findOneAndUpdate(
+        { _id: req.params.u_id },
+        {
+          isAdmin: true,
+        },
+        { new: true }
+      );
+      res.json({
+        success: true,
+        msg: 'Update Successfully',
       });
     } catch (err) {
       return res.json({ success: false, msg: err.message });
