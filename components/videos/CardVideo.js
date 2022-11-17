@@ -1,52 +1,40 @@
 import Link from 'next/link';
 import React from 'react';
 import { format } from 'timeago.js';
-const CardVideo = () => {
+const CardVideo = ({ allvideo }) => {
   return (
     <>
       <div className="cardVideo">
         <div className="row">
-          {[
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 3, 5, 4, 9,
-            95, 22, 5, 5, 6, 6, 4, 4, 1,
-          ].map((val, ind) => {
+          {allvideo?.map((val, ind) => {
             return (
               <div
                 className="col-lg-3 col-md-4 col-sm-6 col-12  mb-2"
                 key={ind}
               >
                 <div className="card">
-                  <Link href="/">
+                  <Link href={`/video/${val._id}`}>
                     <a>
-                      <img
-                        src="https://static-cse.canva.com/blob/951430/1600w-wK95f3XNRaM.jpg"
-                        alt=""
-                      />
+                      <img src={val.channelthumb} alt="" />
                     </a>
                   </Link>
                   <div className="p-2 card_text_box">
-                    <Link href="/">
+                    <Link href={`/account/${val.userid}`}>
                       <a>
-                        <img
-                          src="https://static-cse.canva.com/blob/951430/1600w-wK95f3XNRaM.jpg"
-                          alt=""
-                        />
+                        <img src={val?.profile_image} alt="" />
                       </a>
                     </Link>
                     <div>
-                      <Link href="/">
+                      <Link href={`/video/${val._id}`}>
                         <a>
-                          <p>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                            elit. At, odit.
-                          </p>
+                          <p className="">{val.title}</p>
                         </a>
                       </Link>
-                      <div className="p-2 small_boxx">
-                        <small>250views</small>
-                        <small>{format(new Date())}</small>
-                      </div>
                     </div>
+                  </div>
+                  <div className="pl-2 pr-2 pb-3  small_boxx">
+                    <small> {val.views} views</small>
+                    <small>{format(new Date(val.uploadAt))}</small>
                   </div>
                 </div>
               </div>

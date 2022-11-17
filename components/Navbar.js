@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Divider,
@@ -14,6 +14,10 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import Logout from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { apilink } from '../utils/data';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 
 const sidenav = [
   {
@@ -32,18 +36,16 @@ const sidenav = [
     path: '/liked_video',
     fclass: 'fa-thumbs-o-up',
   },
-  {
-    display: 'Account',
-    path: '/account',
-    fclass: 'fa-user-o',
-  },
 ];
 
 const Navbar = () => {
+  const tokon = Cookies.get('_showbox_access_user_tokon_');
   const [searchStatus, setSearchStatus] = useState(false);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const [logoutstatus, setLogoutstatus] = useState(false);
+  const [userDet, setUserDet] = useState([]);
+  const router = useRouter();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openn = Boolean(anchorEl);
@@ -56,14 +58,30 @@ const Navbar = () => {
   const onSub = async (e) => {
     e.preventDefault();
 
+    let text = search.trim();
+    text = text.replace(/\s/g, '+');
+    router.push(`/search?search_query=${text}`);
+    setSearch('');
     setSearchStatus(false);
   };
   const logout = () => {
-    // Cookies.remove('_hecord_access_user_tokon_');
-    // localStorage.removeItem('_hecord_access_user_login');
-    // console.clear();
-    // window.location.href = '/home';
+    Cookies.remove('_showbox_access_user_tokon_');
+    localStorage.removeItem('_showbox_access_user_login');
+    console.clear();
+    window.location.href = '/login';
   };
+
+  useEffect(async () => {
+    const res = await axios.get(`${apilink}/auth/isVerify`, {
+      headers: {
+        Authorization: tokon,
+      },
+    });
+    if (!res.data.success) {
+    } else {
+      setUserDet(res.data.userInfo);
+    }
+  }, []);
   return (
     <>
       {searchStatus ? (
@@ -145,11 +163,15 @@ const Navbar = () => {
                   />
                 </div>
                 <div className=" ml-3">
-                  <img
-                    src="https://res.cloudinary.com/du9emrtpi/image/upload/v1668007039/stream/video-plus_kdfri8.svg"
-                    alt=""
-                    className="cur"
-                  />
+                  <Link href="/upload_video">
+                    <a>
+                      <img
+                        src="https://res.cloudinary.com/du9emrtpi/image/upload/v1668007039/stream/video-plus_kdfri8.svg"
+                        alt=""
+                        className="cur"
+                      />
+                    </a>
+                  </Link>
                 </div>
                 <div className="notification ml-4">
                   <div>
@@ -160,7 +182,11 @@ const Navbar = () => {
 
                 <div className="profile_img ml-4 cur" onClick={handleClick}>
                   <img
-                    src="https://cdn4.buysellads.net/uu/1/3386/1525189943-38523.png"
+                    src={
+                      userDet?.profileimg
+                        ? userDet?.profileimg
+                        : 'https://res.cloudinary.com/du9emrtpi/image/upload/v1660128327/avatar/user_beo1wf.png'
+                    }
                     alt=""
                   />
                 </div>
@@ -202,7 +228,7 @@ const Navbar = () => {
                   className="right_nav_link"
                 >
                   <MenuItem>
-                    <Link href="/">
+                    <Link href={`/account/${userDet._id}`}>
                       <a className="nav_item">
                         <ListItemIcon>
                           <PersonIcon fontSize="small" />
@@ -211,16 +237,18 @@ const Navbar = () => {
                       </a>
                     </Link>
                   </MenuItem>
-                  <MenuItem>
-                    <Link href="/">
-                      <a className="nav_item">
-                        <ListItemIcon>
-                          <SettingsIcon fontSize="small" />
-                        </ListItemIcon>
-                        Setting
-                      </a>
-                    </Link>
-                  </MenuItem>
+                  {userDet?.isAdmin && (
+                    <MenuItem>
+                      <Link href="/admin">
+                        <a className="nav_item">
+                          <ListItemIcon>
+                            <SettingsIcon fontSize="small" />
+                          </ListItemIcon>
+                          Admin
+                        </a>
+                      </Link>
+                    </MenuItem>
+                  )}
 
                   <MenuItem onClick={() => setLogoutstatus(true)}>
                     <ListItemIcon>
@@ -263,6 +291,15 @@ const Navbar = () => {
                         </li>
                       );
                     })}
+
+                    <li>
+                      <Link href={`/account/${userDet._id}`}>
+                        <a>
+                          <i className="fa fa-user-o mr-2"></i>
+                          <ListItemText primary="Account" />
+                        </a>
+                      </Link>
+                    </li>
                   </ul>
                 </Drawer>
               </div>

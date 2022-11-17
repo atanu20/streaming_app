@@ -18,7 +18,7 @@ const tags = [
   'Mango',
 ];
 
-const TagSlider = () => {
+const TagSlider = ({ tagsArray }) => {
   const router = useRouter();
 
   // console.log(router);
@@ -51,7 +51,7 @@ const TagSlider = () => {
           </p>
         </SwiperSlide>
 
-        {tags?.map((val, ind) => {
+        {tagsArray?.map((val, ind) => {
           return (
             <SwiperSlide key={ind}>
               <p

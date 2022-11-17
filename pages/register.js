@@ -1,12 +1,39 @@
-import { Link } from '@mui/material';
+import { CircularProgress } from '@mui/material';
+import axios from 'axios';
 import React, { useState } from 'react';
+import { apilink } from '../utils/data';
+import Link from 'next/link';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const onRegister = (e) => {
+  const [status, setStatus] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const onRegister = async (e) => {
+    setLoading(true);
     e.preventDefault();
+    const data = {
+      name,
+      email,
+      password,
+    };
+    const res = await axios.post(`${apilink}/api/user/register`, data);
+    if (res.data.success) {
+      setStatus(true);
+      setMsg(res.data.msg);
+      setEmail('');
+
+      setPassword('');
+      setName('');
+    } else {
+      setStatus(true);
+      setMsg(res.data.msg);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -31,6 +58,18 @@ const Register = () => {
           <div className="forms">
             <div className="form-content">
               <div className="signup-form">
+                {status && (
+                  <div class="alert alert-info alert-dismissible fn_14">
+                    <button
+                      type="button"
+                      class="close fn_14"
+                      data-dismiss="alert"
+                    >
+                      &times;
+                    </button>
+                    {msg}
+                  </div>
+                )}
                 <div className="title">Signup</div>
                 <form action="#" onSubmit={onRegister}>
                   <div className="input-boxes">
@@ -47,7 +86,7 @@ const Register = () => {
                     <div className="input-box">
                       <i className="fa fa-envelope"></i>
                       <input
-                        type="text"
+                        type="email"
                         placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -65,8 +104,18 @@ const Register = () => {
                       />
                     </div>
                     <div className="button input-box">
-                      <input type="submit" value="Sumbit" />
+                      <input
+                        type="submit"
+                        value="Submit"
+                        className={loading && 'dis'}
+                        disabled={loading}
+                      />
                     </div>
+                    {loading && (
+                      <div className="text-center p-2">
+                        <CircularProgress size={35} />
+                      </div>
+                    )}
                     <div className="text sign-up-text">
                       Already have an account?{' '}
                       <label>

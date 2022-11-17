@@ -1,18 +1,125 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import React, { useEffect, useState } from 'react';
 import Footer from '../../../components/Footer';
 import Layout from '../../../components/Layout';
-const Edit_vid = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [tags, setTags] = useState('');
+import { apilink } from '../../../utils/data';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { CircularProgress } from '@mui/material';
+import { useRouter } from 'next/router';
 
-  const [visibility, setVisibility] = useState(true);
+const Edit_vid = ({ login, videoDet, userInfo, error }) => {
+  // console.log(videoDet);
+  const tokon = Cookies.get('_showbox_access_user_tokon_');
+  const [title, setTitle] = useState(videoDet.title);
+  const [description, setDescription] = useState(videoDet.description);
+  const [tags, setTags] = useState(videoDet.tags.toString());
+  const [visibility, setVisibility] = useState(videoDet.isPublic);
 
-  const onVideoUpload = (e) => {
+  const [status, setStatus] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const notify = (msg) =>
+    toast.dark(msg, {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+    });
+
+  const onVideoUpload = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    const res = await axios.post(
+      `${apilink}/api/user/updateVideoDetails`,
+      {
+        title,
+        description,
+        tags,
+        visibility,
+        vid: router.query.edit_vid,
+      },
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    // console.log(res.data);
+    if (res.data.success) {
+      // setStatus(true);
+      notify(res.data.msg);
+      setTimeout(() => {
+        router.push(`/account/${userInfo._id}`);
+      }, 5000);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        // setStatus(true);
+        notify(res.data.msg);
+      }
+    }
+    setLoading(false);
   };
+
+  const onChangeTitle = (e) => {
+    setTitle(e.target.value);
+    if (e.target.value.length > 100) {
+      setStatus(true);
+      setMsg('Title should be <= 100 characters');
+    } else {
+      setStatus(false);
+      setMsg('');
+    }
+  };
+
+  const onChangeDes = (e) => {
+    setDescription(e.target.value);
+    if (e.target.value.length > 500) {
+      setStatus(true);
+      setMsg('Description should be <= 500 characters');
+    } else {
+      setStatus(false);
+      setMsg('');
+    }
+  };
+
+  useEffect(() => {
+    if (!login) {
+      Cookies.remove('_showbox_access_user_tokon_');
+      localStorage.removeItem('_showbox_access_user_login');
+      console.clear();
+      window.location.href = `/login`;
+    }
+  }, []);
+
+  if (error) {
+    return (
+      <>
+        <Layout>
+          <div className="account p-3">
+            <div className="mt-4">
+              <h4 className="text-danger">Something Wrong...</h4>
+            </div>
+          </div>
+        </Layout>
+      </>
+    );
+  }
+
   return (
     <>
+      <ToastContainer />
       <Layout>
         <div className="p-3 upload_video">
           <div className="row">
@@ -20,6 +127,20 @@ const Edit_vid = () => {
               <div className="card p-3">
                 <h5 className="fn_Col">Update Your Video</h5>
                 <hr />
+                {status && (
+                  <div class="alert alert-info alert-dismissible fn_14">
+                    <button
+                      type="button"
+                      class="close fn_14"
+                      data-dismiss="alert"
+                      onClick={() => setStatus(false)}
+                    >
+                      &times;
+                    </button>
+                    {msg}
+                  </div>
+                )}
+
                 <form action="" onSubmit={onVideoUpload}>
                   <div class="form-group">
                     <input
@@ -28,9 +149,9 @@ const Edit_vid = () => {
                       name="title"
                       placeholder="Write Title"
                       value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={onChangeTitle}
                       required
-                      maxLength={100}
+                      maxLength={101}
                     />
                   </div>
                   <div class="form-group">
@@ -40,8 +161,9 @@ const Edit_vid = () => {
                       name="description"
                       rows="3"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={onChangeDes}
                       required
+                      maxLength={501}
                     ></textarea>
                   </div>
                   <div class="form-group">
@@ -70,8 +192,25 @@ const Edit_vid = () => {
 
                   <br />
                   <div className="text-center">
-                    <button className="btn btn-primary">Save Video</button>
+                    <button
+                      className={
+                        loading ? 'btn btn-primary dis' : 'btn btn-primary'
+                      }
+                      disabled={loading}
+                    >
+                      Save Video
+                    </button>
                   </div>
+                  {loading && (
+                    <p className="m-1 fn_col fn_14 text-center">
+                      Updating Video Details...
+                    </p>
+                  )}
+                  {loading && (
+                    <div className="text-center p-2">
+                      <CircularProgress size={35} />
+                    </div>
+                  )}
                 </form>
               </div>
             </div>
@@ -84,3 +223,43 @@ const Edit_vid = () => {
 };
 
 export default Edit_vid;
+
+export const getServerSideProps = async (context) => {
+  const tokon = context.req.cookies._showbox_access_user_tokon_
+    ? context.req.cookies._showbox_access_user_tokon_
+    : null;
+  const ress = await axios.get(`${apilink}/auth/isVerify`, {
+    headers: {
+      Authorization: tokon,
+    },
+  });
+
+  try {
+    const resvideo = await axios.get(
+      `${apilink}/api/user/getVideoById/${context.params.edit_vid}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+
+    return {
+      props: {
+        login: ress.data.success,
+        videoDet: resvideo.data.videoDet || [],
+        userInfo: ress.data.userInfo || [],
+        error: false,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        login: ress.data.success,
+        videoDet: [],
+        userInfo: [],
+        error: true,
+      },
+    };
+  }
+};

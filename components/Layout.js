@@ -1,8 +1,13 @@
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Footer from './Footer';
 import Navbar from './Navbar';
 import { useRouter } from 'next/router';
+import CircularStatic from './videos/UploadProgress';
+import { apilink } from '../utils/data';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import SidebarSubList from './subscribeCom/SidebarSubList';
 
 const sidenav = [
   {
@@ -18,16 +23,27 @@ const sidenav = [
     display: 'Liked Video',
     path: '/liked_video',
   },
-  {
-    display: 'Account',
-    path: '/account',
-  },
 ];
 
 const Layout = ({ children }) => {
+  const tokon = Cookies.get('_showbox_access_user_tokon_');
   const router = useRouter();
-  // console.log(router.pathname);
+  const [userDet, setUserDet] = useState([]);
+  // console.log();
   const active = sidenav.findIndex((e) => e.path === router.pathname);
+
+  useEffect(async () => {
+    const res = await axios.get(`${apilink}/auth/isVerify`, {
+      headers: {
+        Authorization: tokon,
+      },
+    });
+    if (!res.data.success) {
+    } else {
+      setUserDet(res.data.userInfo);
+    }
+  }, []);
+
   return (
     <>
       <Navbar />
@@ -43,31 +59,33 @@ const Layout = ({ children }) => {
                 </li>
               );
             })}
+            <li
+              className={
+                router.pathname == '/account/[account_id]' ? 'active' : ''
+              }
+            >
+              <Link href={`/account/${userDet._id}`}>
+                <a className="side_bar_nav">Account</a>
+              </Link>
+            </li>
           </ul>
           <hr />
           <p className="pl-2 m-0 ">Subscriptions</p>
           <ul className="subscrip mb-5">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 6].map(
-              (val, ind) => (
-                <li className="m-0 " key={ind}>
-                  <Link href="/">
-                    <a className="">
-                      {' '}
-                      <img
-                        src="https://res.cloudinary.com/du9emrtpi/image/upload/v1665580614/rxm0aphl7nkn28lvlrrp.jpg"
-                        alt=""
-                      />{' '}
-                      Unique FoF
-                    </a>
-                  </Link>
-                </li>
-              )
-            )}
+            {userDet?.subscribed?.map((val, ind) => (
+              <li className="m-0 " key={ind}>
+                <SidebarSubList subscribedId={val} />
+              </li>
+            ))}
           </ul>
           <br />
         </div>
         <div className="right_sidebar">
           <main>{children}</main>
+          {/* <div className="upload_progress">
+            <CircularStatic className="ml-5" uploadPercentage={10} />
+            <p className="m-0">X</p>
+          </div> */}
         </div>
       </div>
     </>

@@ -1,76 +1,349 @@
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Footer from '../../components/Footer';
 import Layout from '../../components/Layout';
 import { format } from 'timeago.js';
+import axios from 'axios';
+import { apilink } from '../../utils/data';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
+import ProfileIMG from '../../components/profileget/ProfileIMG';
+import { CircularProgress } from '@mui/material';
+import SubCount from '../../components/SubCount';
 
-const VideoDetails = () => {
+const VideoDetails = ({
+  login,
+  isMyVideo,
+  videoDet,
+  comments,
+  error,
+  filterVideo,
+  isLiked,
+  isSub,
+}) => {
+  const tokon = Cookies.get('_showbox_access_user_tokon_');
+  const [videoDetails, setVideoDetails] = useState(videoDet);
+  const [likeStatus, setLikeStatus] = useState(isLiked);
+  const [subStatus, setSubStatus] = useState(isSub);
   const [showDes, setShoeDes] = useState(false);
   const [comment, setComment] = useState('');
+  const [allcomments, setAllComments] = useState(comments);
+  const [loading, setLoading] = useState(false);
 
-  const onComment = (e) => {
+  // console.log(comments);
+  const router = useRouter();
+  const notify = (msg) =>
+    toast.dark(msg, {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+    });
+
+  useEffect(() => {
+    // getmyinfo();
+    // console.log();
+    if (!login) {
+      Cookies.remove('_showbox_access_user_tokon_');
+      localStorage.removeItem('_showbox_access_user_login');
+      console.clear();
+      window.location.href = `/login`;
+    }
+  }, []);
+
+  if (error) {
+    return (
+      <>
+        <Layout>
+          <div className="account p-3">
+            <div className="mt-4">
+              <h4 className="text-danger">Something Wrong...</h4>
+            </div>
+          </div>
+        </Layout>
+      </>
+    );
+  }
+
+  const onComment = async (e) => {
     e.preventDefault();
+    const res = await axios.post(
+      `${apilink}/api/user/postComments`,
+      {
+        message: comment,
+        videoid: router.query.video_id,
+      },
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    if (res.data.success) {
+      setComment('');
+      setAllComments([res.data.newcomment, ...allcomments]);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        notify(res.data.msg);
+      }
+    }
   };
+
+  useEffect(() => {
+    getVbyid();
+    getCbyid();
+    updateViews();
+  }, [router.query.video_id]);
+
+  const getVbyid = async () => {
+    setLoading(true);
+    const res = await axios.get(
+      `${apilink}/api/user/getVideoById/${router.query.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    if (res.data.success) {
+      setVideoDetails([]);
+      setVideoDetails(res.data.videoDet);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        notify(res.data.msg);
+      }
+    }
+    setLoading(false);
+  };
+
+  const getCbyid = async () => {
+    const res = await axios.get(
+      `${apilink}/api/user/getCommentsById/${router.query.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    if (res.data.success) {
+      setAllComments(res.data.comDet);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        notify(res.data.msg);
+      }
+    }
+  };
+  // console.log(videoDetails);
+  const updateViews = async () => {
+    // console.log('updateViews');
+    const res = await axios.get(
+      `${apilink}/api/user/updateViews/${router.query.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+
+    if (res.data.success) {
+      setVideoDetails(res.data.videoInfo);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        notify(res.data.msg);
+      }
+    }
+  };
+
+  const updateLikes = async () => {
+    // console.log('updateViews');
+    const res = await axios.get(
+      `${apilink}/api/user/updateLikes/${router.query.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+
+    if (res.data.success) {
+      setLikeStatus(true);
+      setVideoDetails(res.data.videoInfo);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        notify(res.data.msg);
+      }
+    }
+  };
+
+  const onSubscribe = async () => {
+    const res = await axios.post(
+      `${apilink}/api/user/addSubscriber`,
+      {
+        channel_id: videoDet.userid,
+      },
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    if (res.data.success) {
+      setSubStatus(true);
+      // window.location.reload();
+      // setVideoDetails(res.data.videoInfo);
+    } else {
+      if (res.data.msg == 'Invalid Authentication.') {
+        Cookies.remove('_showbox_access_user_tokon_');
+        localStorage.removeItem('_showbox_access_user_login');
+        console.clear();
+        window.location.href = `/login`;
+      } else {
+        notify(res.data.msg);
+      }
+    }
+  };
+
   return (
     <>
+      <ToastContainer />
       <Layout>
         <div className="p-3 mt-4">
           <div className="row">
             <div className="col-md-8 col-12 mx-auto mb-4">
-              <video
-                controls
-                autoPlay
-                disablePictureInPicture
-                width="100%"
-                controlsList="nodownload"
-              >
-                <source src="https://res.cloudinary.com/du9emrtpi/video/upload/v1668190798/video_1_ua5iga.mp4" />
-              </video>
+              {loading ? (
+                <>
+                  <div className="text-center p-2">
+                    <CircularProgress size={45} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <video
+                    controls
+                    autoPlay
+                    disablePictureInPicture
+                    width="100%"
+                    height="300px"
+                    controlsList="nodownload"
+                  >
+                    <source src={videoDetails?.channelvideo} />
+                  </video>
+                </>
+              )}
+
               <div className="mt-2 m-1">
-                <p className="m-0 fn_14">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. At,
-                  odit.
-                </p>
+                <p className="m-0 fn_14">{videoDetails.title}</p>
               </div>
               <div className="p-1 video-flex ">
                 <div className="d-flex">
-                  <Link href="/">
+                  <Link href={`/account/${videoDetails.userid}`}>
                     <a>
                       <img
-                        src="https://static-cse.canva.com/blob/951430/1600w-wK95f3XNRaM.jpg"
+                        src={videoDetails.profile_image}
                         alt=""
                         className="video_img"
                       />
                     </a>
                   </Link>
                   <div className="ml-2">
-                    <Link href="/">
+                    <Link href={`/account/${videoDetails.userid}`}>
                       <a className=" fn_12 fn_col ">
-                        <span className="">Atanu Jana</span>
+                        <span className="">{videoDetails.channelName}</span>
                       </a>
                     </Link>
-                    <p className="m-0 fn_10">0 subscribers</p>
+                    <SubCount userID={videoDetails.userid} />
                   </div>
                 </div>
                 <div className="d-flex">
-                  <button className="btn subscribe_btn">Subscribe</button>
+                  {isMyVideo ? (
+                    <>
+                      <Link href={`/video/edit/${videoDetails._id}`}>
+                        <a className="btn subscribe_btn">Edit</a>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      {subStatus ? (
+                        <>
+                          <button
+                            className="btn subscribe_btn bg-dark"
+                            disabled={true}
+                          >
+                            Subscribed
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn subscribe_btn"
+                            onClick={() => onSubscribe()}
+                          >
+                            Subscribe
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+                  {/* <button
+                    className="btn subscribe_btn"
+                    onClick={() => onSubscribe()}
+                  >
+                    Subscribe
+                  </button> */}
                   <p className="m-0 fn_14">
-                    0 <i className="fa fa-eye"></i>
+                    {videoDetails.views} <i className="fa fa-eye"></i>
                   </p>
                   <p className="m-0 fn_14 ml-3">
-                    0 <i className="fa fa-heart-o cur"></i>
+                    {videoDetails.likes} {''}
+                    {likeStatus ? (
+                      <>
+                        <i className="fa fa-heart text-danger"></i>
+                      </>
+                    ) : (
+                      <>
+                        <i
+                          className="fa fa-heart-o cur "
+                          onClick={() => updateLikes()}
+                        ></i>
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
               <div className="video_des p-2">
                 {showDes ? (
                   <>
-                    <p className="m-0 fn_12 ">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Nisi velit, dignissimos labore laboriosam omnis voluptatem
-                      maxime dolore at doloribus voluptas repellat non eaque
-                      molestias fugit dolorem, nobis, voluptates eum. Quod?
-                    </p>
+                    <p className="m-0 fn_12 ">{videoDetails?.description}</p>
                     <small
                       className="fn_col cur fn_10"
                       onClick={() => setShoeDes(false)}
@@ -81,10 +354,7 @@ const VideoDetails = () => {
                 ) : (
                   <>
                     <p className="m-0 fn_12 text_p">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Nisi velit, dignissimos labore laboriosam omnis voluptatem
-                      maxime dolore at doloribus voluptas repellat non eaque
-                      molestias fugit dolorem, nobis, voluptates eum. Quod?
+                      {videoDetails?.description?.substring(0, 200)}
                     </p>
                     <small
                       className="fn_col cur fn_10"
@@ -114,71 +384,36 @@ const VideoDetails = () => {
                   <b>Comments</b>
                 </div>
 
-                {[
-                  1,
-                  2,
-                  3,
-                  5,
-                  4,
-                  6,
-                  6,
-                  8,
-                  ,
-                  8,
-                  8,
-                  ,
-                  ,
-                  99,
-                  ,
-                  1,
-                  2,
-                  2,
-                  5,
-                  4,
-                  ,
-                  78,
-                  7,
-                  85,
-                  ,
-                  5,
-                  4,
-                  55,
-                  5,
-                  59,
-                  9,
-                ].map((val) => (
-                  <div className="commentbox ">
-                    <div>
-                      <img
-                        src="https://via.placeholder.com/150"
-                        alt=""
-                        className="com_logo"
-                      />
-                    </div>
-                    <div>
-                      <p className="m-0 fn_10 fn_col">Atanu Jana</p>
-                      <p className="m-0 fn_12">
-                        Lorem, ipsum dolor sit amet consectetur adipisicing
-                        elit. Illo, velit!
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                {allcomments?.map((val, ind) => {
+                  return (
+                    <>
+                      <div className="commentbox " key={ind}>
+                        <div>
+                          <ProfileIMG details={val.userid} />
+                        </div>
+                        <div>
+                          <p className="m-0 fn_10 fn_col">{val.name}</p>
+                          <p className="m-0 fn_12">{val.message}</p>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })}
               </div>
             </div>
             <div className="col-md-4 col-12 mx-auto mb-2">
               <div className="recomend_video_list">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 12].map((val, ind) => {
+                {filterVideo?.map((val, ind) => {
                   return (
                     <>
                       <div className="recomend_video" key={ind}>
                         <div className="row  mb-2">
                           <div className="col-lg-5 col-md-5 col-sm-6 col-6 mx-auto">
-                            <Link href="/">
+                            <Link href={`/video/${val._id}`}>
                               <a>
                                 {' '}
                                 <img
-                                  src="https://via.placeholder.com/150"
+                                  src={val.channelthumb}
                                   alt=""
                                   className="recomend_video_img"
                                 />
@@ -186,22 +421,16 @@ const VideoDetails = () => {
                             </Link>
                           </div>
                           <div className="col-lg-7 col-md-7 col-sm-6 col-6 mx-auto recomend_video_text">
-                            <Link href="/">
+                            <Link href={`/video/${val._id}`}>
                               <a>
                                 <p className="m-0 fn_12 text-dark">
-                                  <b>
-                                    Lorem ipsum, dolor sit amet consectetur
-                                    adipisicing elit. Facilis illo quasi natus.
-                                    Laboriosam veritatis sunt quidem natus neque
-                                    molestiae nisi beatae dicta ipsum at? Aut ab
-                                    possimus exercitationem ea dolores!
-                                  </b>
+                                  <b>{val.title}</b>
                                 </p>
                               </a>
                             </Link>
-                            <Link href="/">
+                            <Link href={`/account/${val.userid}`}>
                               <a>
-                                <p className="m-0 fn_10 ">Atanu Jana</p>
+                                <p className="m-0 fn_10 ">{val.channelName}</p>
                               </a>
                             </Link>
                             {/* <small className="fn_10">{format(new Date())}</small> */}
@@ -222,3 +451,105 @@ const VideoDetails = () => {
 };
 
 export default VideoDetails;
+
+export const getServerSideProps = async (context) => {
+  const tokon = context.req.cookies._showbox_access_user_tokon_
+    ? context.req.cookies._showbox_access_user_tokon_
+    : null;
+  const ress = await axios.get(`${apilink}/auth/isVerify`, {
+    headers: {
+      Authorization: tokon,
+    },
+  });
+
+  try {
+    const resvideo = await axios.get(
+      `${apilink}/api/user/getVideoById/${context.params.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    // console.log(resvideo.data.videoDet.tags);
+    const rescomm = await axios.get(
+      `${apilink}/api/user/getCommentsById/${context.params.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    // console.log(rescomm.data);
+    const likeornot = await axios.get(
+      `${apilink}/api/user/likedornot/${context.params.video_id}`,
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    // console.log(likeornot.data);
+
+    const subscribe = await axios.post(
+      `${apilink}/api/user/subscribedornot`,
+      {
+        channel_id: resvideo.data.videoDet.userid,
+      },
+      {
+        headers: {
+          Authorization: tokon,
+        },
+      }
+    );
+    // console.log(subscribe.data);
+
+    const listdata = await axios.get(`${apilink}/api/user/getAllFavVideo`, {
+      headers: {
+        Authorization: tokon,
+      },
+    });
+    // console.log()
+
+    let bestData = listdata.data.allvideo.filter(
+      (v) => v._id != context.params.video_id
+    );
+
+    const filterByTag = (list, filters) => {
+      // console.log(list);
+      return list.filter((video) =>
+        filters.some((filter) => video.tags.includes(filter))
+      );
+    };
+
+    const filterVideo = filterByTag(bestData, resvideo.data.videoDet.tags);
+
+    // console.log(filterVideo);
+
+    return {
+      props: {
+        login: ress.data.success,
+        isMyVideo: ress.data.userInfo._id == resvideo.data.videoDet.userid,
+        videoDet: resvideo.data.videoDet || [],
+        comments: rescomm.data.comDet || [],
+        filterVideo: filterVideo,
+        isLiked: likeornot.data.liked,
+        error: false,
+        isSub: subscribe.data.subscribed,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        login: ress.data.success,
+        isMyVideo: false,
+        videoDet: [],
+        comments: [],
+        error: true,
+        isLiked: false,
+        filterVideo: [],
+        isSub: false,
+      },
+    };
+  }
+};
